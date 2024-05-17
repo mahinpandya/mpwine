@@ -2364,8 +2364,10 @@ static void EDIT_SetRectNP(EDITSTATE *es, const RECT *rc)
                     InflateRect(&es->format_rect, 0, -bh);
 	}
 	
+	/**** BRIGITTE OR-6821 *****
 	es->format_rect.left += es->left_margin;
 	es->format_rect.right -= es->right_margin;
+	**** BRIGITTE OR-6821 *****/
 	EDIT_AdjustFormatRect(es);
 }
 
