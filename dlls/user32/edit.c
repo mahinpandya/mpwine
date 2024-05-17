@@ -2365,8 +2365,12 @@ static void EDIT_SetRectNP(EDITSTATE *es, const RECT *rc)
 	}
 	
 	/**** dupbr01 OR-6821 *****
-	es->format_rect.left += es->left_margin;
-	es->format_rect.right -= es->right_margin;
+	** comment the code below otherwise when the user tab into the control
+	** the rectangle in which the user can enter data is reduced.
+	** FIXME: Need to see why this exactly why when the user tab out of the
+	** control, the data are moved to the right.
+	** es->format_rect.left += es->left_margin;
+	** es->format_rect.right -= es->right_margin;
 	**** dupbr01 OR-6821 *****/
 	EDIT_AdjustFormatRect(es);
 }
