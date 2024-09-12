@@ -1270,7 +1270,8 @@ static NTSTATUS dlopen_dll( const char *so_name, UNICODE_STRING *nt_name, void *
 {
     void *module, *handle;
     const IMAGE_NT_HEADERS *nt;
-    static int bload = 1;
+    /* Load value of environment variable II_W4GL_WINE_STACKSIZE once*/
+    static int bloadonce = 1;
     static char *stackvalue = NULL;
 
     callback_module = (void *)1;
@@ -1306,17 +1307,19 @@ static NTSTATUS dlopen_dll( const char *so_name, UNICODE_STRING *nt_name, void *
     fill_builtin_image_info( module, image_info );
 
     // Update stack_size
-    if (bload)
+    if (bloadonce)
     {
         stackvalue = getenv("II_W4GL_WINE_STACKSIZE");
-        bload = 0;
+        bloadonce = 0;
     }
     if (stackvalue && *stackvalue)
     {
         const char *ret = strrchr( so_name, '/' );
         const char *fname = ret ? ret + 1 : so_name;
-        //printf("\n II_W4GL_WINE_STACKSIZE %s %s %s %s %ld %d", so_name, ret, fname, stackvalue, image_info->stack_size, GetCurrentProcessId());
-        //fflush(stdout);
+#ifdef OPENROAD_WINE_DEBUG
+        printf("\n II_W4GL_WINE_STACKSIZE %s %s %s %s %ld %d", so_name, ret, fname, stackvalue, image_info->stack_size, GetCurrentProcessId());
+        fflush(stdout);
+#endif
         if (strcmp("w4glrun.exe.so", fname)==0 ||
             strcmp("w4gldev.exe.so", fname)==0 ||
             strcmp("orasogsvr.exe.so", fname)==0)
@@ -1324,8 +1327,10 @@ static NTSTATUS dlopen_dll( const char *so_name, UNICODE_STRING *nt_name, void *
             const IMAGE_DOS_HEADER *dos = (const IMAGE_DOS_HEADER *)module;
             long val = atol(stackvalue);
             val -= val%1024;
-            //printf("\n II_W4GL_WINE_STACKSIZE new %s %s %s %ld %d", so_name, ret, fname, val, GetCurrentProcessId());
-            //fflush(stdout);
+#ifdef OPENROAD_WINE_DEBUG
+            printf("\n II_W4GL_WINE_STACKSIZE new %s %s %s %ld %d", so_name, ret, fname, val, GetCurrentProcessId());
+            fflush(stdout);
+#endif
             ((IMAGE_NT_HEADERS *)((const BYTE *)dos + dos->e_lfanew))->OptionalHeader.SizeOfStackReserve =
                             image_info->stack_size = val;
             stackvalue = NULL;
