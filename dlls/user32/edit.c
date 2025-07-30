@@ -4736,7 +4736,12 @@ LRESULT EditWndProc_common( HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, B
 		break;
 
 	case EM_SETRECTNP:
-		if ((es->style & ES_MULTILINE) && lParam)
+//dupbr01 OR-7492
+/*
+** Now that in OpenROAD we do not use ES_MULTILINE for single line
+** EntryFields we cannot ignore this message for non ES_MULTILNE edit control
+*/
+		if (lParam)
 			EDIT_SetRectNP(es, (LPRECT)lParam);
 		break;
 
